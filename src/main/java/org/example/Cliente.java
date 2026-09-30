@@ -14,39 +14,42 @@ public class Cliente {
             System.out.println("Conectando al servidor...");
             Socket socket = new Socket("localhost", 5000);
 
-            PrintWriter salida = new PrintWriter(
-                    socket.getOutputStream(),
-                    true
-            );
+            PrintWriter salida = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            BufferedReader entrada = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream())
-            );
+            // Bucle para solicitar operaciones de forma infinita
+            while (true) {
+                System.out.println("\n--- NUEVA OPERACIÓN ---");
+                System.out.print("Introduce el primer número (o escribe 'salir' para desconectar): ");
+                String numero1 = scanner.nextLine();
 
-            // Captura de datos por consola
-            System.out.print("Introduce el primer número: ");
-            String numero1 = scanner.nextLine();
+                // Enviamos el primer dato al servidor para que sepa si continuar o detenerse
+                salida.println(numero1);
 
-            System.out.print("Introduce el segundo número: ");
-            String numero2 = scanner.nextLine();
+                if (numero1.equalsIgnoreCase("salir")) {
+                    System.out.println("Desconectando del servidor...");
+                    break;
+                }
 
-            System.out.print("Introduce la operación (+, -, *, /): ");
-            String operacion = scanner.nextLine();
+                System.out.print("Introduce el segundo número: ");
+                String numero2 = scanner.nextLine();
+                salida.println(numero2);
 
-            // Enviamos los datos al servidor en orden
-            salida.println(numero1);
-            salida.println(numero2);
-            salida.println(operacion);
+                System.out.print("Introduce la operación (+, -, *, /): ");
+                String operacion = scanner.nextLine();
+                salida.println(operacion);
 
-            // Lectura de la respuesta enviada por el servidor
-            String respuesta = entrada.readLine();
-            System.out.println("\n[Respuesta del servidor] " + respuesta);
+                // Lectura de la respuesta enviada por el servidor
+                String respuesta = entrada.readLine();
+                System.out.println("[Respuesta del servidor] " + respuesta);
+            }
 
             scanner.close();
             socket.close();
+            System.out.println("Cliente cerrado correctamente.");
 
         } catch (Exception e) {
-            System.out.println("No se pudo conectar con el servidor");
+            System.out.println("No se pudo conectar con el servidor o la conexión se interrumpió.");
             e.printStackTrace();
         }
     }
